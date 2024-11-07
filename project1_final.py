@@ -59,16 +59,12 @@ st.write("Search for a song name, artist name, or album to get recommendations:"
 def load_animation():
     progress_bar = st.progress(0)
     status_text = st.empty()
-    music_icon = "🎶"  # Music note emoji for theme
+    music_icon = "🎵"  # Musical note emoji for theme
 
-    # Emojis for pulsing effect
-    pulse = ["🎵", "🎶", "🎼", "🎧"]
-    
     for i in range(100):
-        progress_bar.progress(i + 2)
-        # Cycle through the pulse emojis for animation effect
-        status_text.text(f"{pulse[i % len(pulse)]} Loading... {i+2}%")
-        time.sleep(0.1)  # Adjust time for animation speed
+        progress_bar.progress(i + 1)
+        status_text.text(f"{music_icon} Loading... {i+1}% {music_icon}")
+        time.sleep(0.01)
 
     status_text.empty()
     progress_bar.empty()
