@@ -59,10 +59,13 @@ st.write("Search for a song name, artist name, or album to get recommendations:"
 def load_animation():
     progress_bar = st.progress(0)
     status_text = st.empty()
+    music_icon = "🎵"  # Musical note emoji for theme
+
     for i in range(100):
         progress_bar.progress(i + 1)
-        status_text.text(f"Loading... {i+1}%")
+        status_text.text(f"{music_icon} Loading... {i+1}% {music_icon}")
         time.sleep(0.01)
+
     status_text.empty()
     progress_bar.empty()
 
