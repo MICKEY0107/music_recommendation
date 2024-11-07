@@ -65,9 +65,9 @@ def load_animation():
     pulse = ["🎵", "🎶", "🎼", "🎧"]
     
     for i in range(100):
-        progress_bar.progress(i + 1)
+        progress_bar.progress(i + 2)
         # Cycle through the pulse emojis for animation effect
-        status_text.text(f"{pulse[i % len(pulse)]} Loading... {i+1}%")
+        status_text.text(f"{pulse[i % len(pulse)]} Loading... {i+2}%")
         time.sleep(0.1)  # Adjust time for animation speed
 
     status_text.empty()
