@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import streamlit as st
-
+import time
 # Load the CSV file into a DataFrame
 df = pd.read_csv("hindi_songs.csv")
 
@@ -52,10 +52,19 @@ def get_recommendations(user_input, tfidf, vectorizer, df, num_recommendations=5
 st.title("Hindi Hits: Discover Your Favorite Tunes!")  # Changed title
 st.write("Search for a song name, artist name, or album to get recommendations:")
 
+def load_animation():
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+    for i in range(100):
+        progress_bar.progress(i + 1)
+        status_text.text(f"Loading... {i+1}%")
+        time.sleep(0.01)
+    status_text.empty()
+    progress_bar.empty()
 # User input
-user_input = st.text_input("Search:").strip()
-
+user_input = st.text_input("Search:",placeholder="eg. Kishore Kumar,R D Burman").strip()
 if st.button("Get Recommendations"):
+    load_animation()
     if user_input:
         recommendations = get_recommendations(user_input, tfidf, vectorizer, df1)
         if not recommendations.empty:
