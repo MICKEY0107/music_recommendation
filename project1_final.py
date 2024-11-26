@@ -1,8 +1,15 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Nov 14 16:30:00 2024
+
+@author: Aniket Mishra
+"""
+
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import streamlit as st
-import time
+
+from rapidfuzz import process
 
 # Load the CSV file into a DataFrame
 df = pd.read_csv("hindi_songs.csv")
@@ -28,7 +35,7 @@ df1['track_name'] = df1['track_name'].fillna("")
 df1['artist_name'] = df1['artist_name'].fillna("")
 df1['album'] = df1['album'].fillna("")
 
-# Convert spotify URI to full URL
+# Convert Spotify URI to full URL
 df1['spotify_link'] = df1['spotify_link'].apply(lambda x: f"https://open.spotify.com/track/{x.split(':')[-1]}")
 
 # Fit the TfidfVectorizer on the combined relevant columns
@@ -39,9 +46,24 @@ vectorizer = tfidf.fit_transform(combined_data)
 # Convert duration to minutes and seconds
 df1['formatted_duration'] = df1['duration'].apply(lambda x: f"{int(x // 60000)}:{int((x % 60000) / 1000):02d}")
 
-# Function to get recommendations based on user input
+# Function to get recommendations based on user input with fuzzy matching
 def get_recommendations(user_input, tfidf, vectorizer, df, num_recommendations=10):
-    user_vector = tfidf.transform([user_input])
+    # Use fuzzy matching to find closest matches for user input
+    all_choices = df['track_name'].tolist() + df['artist_name'].tolist() + df['album'].tolist()
+    best_matches = process.extract(user_input, all_choices, limit=5, score_cutoff=70)
+    
+    # Provide a "Did you mean" suggestion if no exact matches are found
+    if best_matches:
+        top_match = best_matches[0][0]  # Get the top match
+        if user_input.lower() != top_match.lower():  # If input and top match differ significantly
+            st.write(f"Did you mean **{top_match}**?")
+        combined_query = ' '.join([match[0] for match in best_matches])
+    else:
+        st.write("No close matches found. Please check your input.")
+        return pd.DataFrame()  # Return an empty DataFrame if no matches
+    
+    # Transform the combined query and calculate cosine similarity
+    user_vector = tfidf.transform([combined_query])
     user_similarity = cosine_similarity(user_vector, vectorizer)
     
     # Find the top matches
@@ -52,6 +74,9 @@ def get_recommendations(user_input, tfidf, vectorizer, df, num_recommendations=1
     return recommendations
 
 # Streamlit app layout
+import streamlit as st
+import time
+
 st.title("Hindi Hits: Discover Your Favorite Tunes!")
 st.write("Search for a song name, artist name, or album to get recommendations:")
 
@@ -85,19 +110,18 @@ st.markdown("""
         }
     </style>
     """, unsafe_allow_html=True)
-st.sidebar.subheader("No Idea What To Listen ? Here are some popular artists!")
+
+st.sidebar.subheader("No Idea What To Listen To? Here are some popular artists!")
 st.sidebar.markdown(
     """
-    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/artist/0gXDpqwYNDODn7fB0RDN8J?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/artist/61JrslREXq98hurYL2hYoc?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/artist/4oVMLzAqW6qhRpZWt8fNw4?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    <iframe style="border-radius:20px" src="https://open.spotify.com/embed/artist/4oVMLzAqW6qhRpZWt8fNw4?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     <iframe style="border-radius:20px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DZ06evO0FcUGj?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     <iframe style="border-radius:20px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DZ06evO0lbUOX?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     <iframe style="border-radius:20px" src="https://open.spotify.com/embed/artist/2jqTyPt0UZGrthPF4KMpeN?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-    """,
+    <iframe style="border-radius:20px" src="https://open.spotify.com/embed/artist/4YRxDV8wJFPHPTeXepOstw?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    """,    
     unsafe_allow_html=True
 )
-
 
 # User input
 user_input = st.text_input("Search:", placeholder="e.g. Kishore Kumar, R D Burman").strip()
@@ -107,7 +131,6 @@ if st.button("Get Recommendations"):
     if user_input:
         recommendations = get_recommendations(user_input, tfidf, vectorizer, df1, num_recommendations=10)
         if not recommendations.empty:
-            
             st.write("### Recommended Songs:")
             # Display recommendations in 2 rows with 5 columns each
             columns = st.columns(5)
