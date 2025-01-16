@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Nov 14 16:30:00 2024
-
-@author: Aniket Mishra
-"""
-
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -119,10 +112,18 @@ st.sidebar.markdown(
     <iframe style="border-radius:20px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DZ06evO0lbUOX?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     <iframe style="border-radius:20px" src="https://open.spotify.com/embed/artist/2jqTyPt0UZGrthPF4KMpeN?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     <iframe style="border-radius:20px" src="https://open.spotify.com/embed/artist/4YRxDV8wJFPHPTeXepOstw?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/artist/1zERD0GCjQIzwmwAa0wCIJ?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     """,    
     unsafe_allow_html=True
 )
+
+# Add a sidebar "About" section for contributors
+with st.sidebar:
+    st.header("About")
+    st.write("This app was developed by:")
+    st.write("[Your Name](https://github.com/your-github-id)")
+    st.write("[Teammate 1](https://github.com/teammate1-github-id)")
+    st.write("[Teammate 2](https://github.com/teammate2-github-id)")
+    st.write("Explore our profiles for more projects!")
 
 # User input
 user_input = st.text_input("Search:", placeholder="e.g. Kishore Kumar, R D Burman").strip()
@@ -150,3 +151,15 @@ if st.button("Get Recommendations"):
             st.write("No recommendations found.")
     else:
         st.write("Please enter a song name, artist name, or album.")
+
+# Add a footer for contributors
+st.markdown("---")
+st.markdown("""
+<div style='text-align: center;'>
+    <h4>Developed by :</h4>
+    <p>
+        <a href='https://github.com/MICKEY0107' target='_blank'>Aniket Mishra</a> |
+        <a href='https://github.com/aaradhya1205' target='_blank'>Aaradhya Gupta</a> |
+    </p>
+</div>
+""", unsafe_allow_html=True)
